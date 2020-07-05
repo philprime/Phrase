@@ -1,32 +1,32 @@
 //
-//   InfixOperator.swift
-//   Phrase
+//  InfixOperator.swift
+//  Phrase
 //
-//   Created by Philip Niedertscheider on 05.07.20.
-//   Copyright © Philip Niedertscheider. All rights reserved.
+//  Created by Philip Niedertscheider on 05.07.20.
+//  Copyright © Philip Niedertscheider. All rights reserved.
 //
 
-internal enum InfixOperator {
+internal enum InfixOperator: String {
     // MARK: Logic operators
 
     /// Binary AND
-    case and
+    case and = "&&"
     /// Binary OR
-    case or
+    case or = "||"
 
     // MARK: Equatable
 
     /// Checks if both sides are the same
-    case equals
+    case equals = "=="
     /// Checks if both sides are not the same
-    case inequals
+    case inequals = "!="
 
     // MARK: Comparable
 
-    case greater
-    case greaterThan
-    case lower
-    case lowerThan
+    case greater = ">"
+    case greaterThan = ">="
+    case lower = "<"
+    case lowerThan = "<="
 
     /// Evaluates the infix operator with the two given constants.
     ///

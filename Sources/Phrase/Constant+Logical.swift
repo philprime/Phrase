@@ -1,9 +1,9 @@
 //
-//   Constant+Logical.swift
-//   Phrase
+//  Constant+Logical.swift
+//  Phrase
 //
-//   Created by Philip Niedertscheider on 05.07.20.
-//   Copyright © Philip Niedertscheider. All rights reserved.
+//  Created by Philip Niedertscheider on 05.07.20.
+//  Copyright © Philip Niedertscheider. All rights reserved.
 //
 
 func && (lhs: Constant, rhs: Constant) throws -> Bool {

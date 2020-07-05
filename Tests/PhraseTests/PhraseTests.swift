@@ -12,10 +12,6 @@ import Nimble
 
 class PhraseTests: QuickSpec {
 
-    static var allTests = [
-        ("spec", spec),
-    ]
-
     override func spec() {
         describe("Phrase") {
 

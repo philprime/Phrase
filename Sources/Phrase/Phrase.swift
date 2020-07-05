@@ -1,17 +1,16 @@
 //
-//   Phrase.swift
-//   Phrase
+//  Phrase.swift
+//  Phrase
 //
-//   Created by Philip Niedertscheider on 05.07.20.
-//   Copyright © Philip Niedertscheider. All rights reserved.
+//  Created by Philip Niedertscheider on 05.07.20.
+//  Copyright © Philip Niedertscheider. All rights reserved.
 //
 
 public class Phrase {
-
-    private var ast: ASTNode!
+    private var tree: ASTNode!
     private let lexer: Lexer!
 
-    public var context: [String: Any] = [:]
+    public var context: Context = [:]
 
     public init(_ expression: String) throws {
         guard !expression.isEmpty else {
@@ -27,7 +26,7 @@ public class Phrase {
         while let token = lexer.next() {
             try parse(token: token, stack: &stack)
         }
-        ast = stack.first!
+        tree = stack.first!
     }
 
     private func parse(token: Substring, stack: inout [ASTNode]) throws {
@@ -46,33 +45,15 @@ public class Phrase {
 
             // if rhs is only a variable but not a boolean value, continue
             if token == "&&" || token == "||" {
-                if try isNotLogical(node: rhs), let nextToken = lexer.next() {
+                if try rhs.isNotLogical(context: context), let nextToken = lexer.next() {
                     stack.append(rhs)
                     try parse(token: nextToken, stack: &stack)
                     rhs = stack.popLast()!
                 }
             }
 
-            let op: InfixOperator
-            switch token {
-            case "&&":
-                op = .and
-            case "||":
-                op = .or
-            case "==":
-                op = .equals
-            case "!=":
-                op = .inequals
-            case ">":
-                op = .greater
-            case ">=":
-                op = .greaterThan
-            case "<":
-                op = .lower
-            case "<=":
-                op = .lowerThan
-            default:
-                fatalError("Unknown infix operator: " + token)
+            guard let op = InfixOperator(rawValue: String(token)) else {
+                throw PhraseError.unknownOperator(name: String(token))
             }
             stack.append(.infix(op: op, lhs: lhs, rhs: rhs))
         default:
@@ -103,7 +84,7 @@ public class Phrase {
             } else {
                 // Either it is unparsed or it is a variable name
                 // Check if name has non-alphanumeric with lowercase, if so it is not a variable name
-                if let variable = try parseVariable(token: token) {
+                if let variable = try Variable.parse(token: token) {
                     stack.append(.variable(variable))
                 } else {
                     // functions
@@ -116,7 +97,7 @@ public class Phrase {
                                 fatalError()
                             }
                             keypathStack.append(.postfix(op: .count, node: prevNode))
-                        } else if let variable = try parseVariable(token: path) {
+                        } else if let variable = try Variable.parse(token: path) {
                             if keypathStack.count != 0 {
                                 fatalError("Did not implement nested variables yet")
                             } else {
@@ -131,41 +112,6 @@ public class Phrase {
                 }
             }
         }
-    }
-
-    private func isNotLogical(node: ASTNode) throws -> Bool {
-        switch node {
-        case let .constant(c):
-            switch c {
-            case .true, .false:
-                return false
-            default:
-                return true
-            }
-        case let .variable(name):
-            guard let val = context[name] else {
-                return false
-            }
-            let casted = try cast(variable: val)
-            let isTruthy = try casted == .true
-            let isFalsey = try casted == .false
-            return !isTruthy && !isFalsey
-        case let .prefix(op, _):
-            return op != .not
-        default:
-            return true
-        }
-    }
-
-    private func parseVariable(token: Substring) throws -> Variable? {
-        let alphabet = "abcdefghijklmnopqrstuvwxyz"
-        let decimals = "0123456789"
-        let symbols = "_"
-        let allowedCharacters = alphabet + alphabet.uppercased() + decimals + symbols
-        guard token.allSatisfy(allowedCharacters.contains) else {
-            return nil
-        }
-        return Variable(token)
     }
 
     private func parseArray(content: Substring) throws -> Constant {
@@ -216,59 +162,6 @@ public class Phrase {
     }
 
     public func evaluate() throws -> Bool {
-        try evaluate(node: ast) == .true
-    }
-
-    private func evaluate(node: ASTNode) throws -> Constant {
-        switch node {
-        case let .prefix(op, node):
-            switch op {
-            case .not:
-                return try evaluate(node: node) == .true ? .false : .true
-            }
-        case let .infix(op, lhs, rhs):
-            let evaluatedLhs: () throws -> Constant = { try self.evaluate(node: lhs) }
-            let evaluatedRhs: () throws -> Constant = { try self.evaluate(node: rhs) }
-            // Use lazy evaluation, so the operator can decide if each evaluations is actually necessary
-            return try op.evaluate(lhs: evaluatedLhs, rhs: evaluatedRhs) ? .true : .false
-        case let .postfix(op, node):
-            switch op {
-            case .count:
-                guard case let ASTNode.variable(variable) = node else {
-                    throw PhraseError.invalidVariableType(node)
-                }
-                guard let variableData = context[variable] else {
-                    throw PhraseError.unknownVariable(name: variable)
-                }
-                guard case let Constant.array(array) = try cast(variable: variableData) else {
-                    throw PhraseError.typesMismatch
-                }
-                return .number(array.count.description)
-            }
-        case let .constant(constant):
-            return constant
-        case let .variable(variable):
-            if let value = context[variable] {
-                return try cast(variable: value)
-            }
-            return .nil
-        }
-    }
-
-    private func cast(variable: Any) throws -> Constant {
-        if let string = variable as? String {
-            return .string(string)
-        } else if let integer = variable as? Int {
-            return .number(String(integer))
-        } else if let integer = variable as? Float {
-            return .number(String(integer))
-        } else if let integer = variable as? Double {
-            return .number(String(integer))
-        } else if let array = variable as? [Any] {
-            return try .array(array.map { value in
-                try cast(variable: value)
-            })
-        }
-        throw PhraseError.invalidVariableType(variable)
+        try Evaluator(tree: tree, context: context).evaluate()
     }
 }

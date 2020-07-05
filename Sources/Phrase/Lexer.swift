@@ -1,9 +1,9 @@
 //
-//   Lexer.swift
-//   Phrase
+//  Lexer.swift
+//  Phrase
 //
-//   Created by Philip Niedertscheider on 05.07.20.
-//   Copyright © Philip Niedertscheider. All rights reserved.
+//  Created by Philip Niedertscheider on 05.07.20.
+//  Copyright © Philip Niedertscheider. All rights reserved.
 //
 
 class Lexer: IteratorProtocol {

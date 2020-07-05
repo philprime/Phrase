@@ -1,9 +1,9 @@
 //
-//   PhraseError.swift
-//   Phrase
+//  PhraseError.swift
+//  Phrase
 //
-//   Created by Philip Niedertscheider on 05.07.20.
-//   Copyright © Philip Niedertscheider. All rights reserved.
+//  Created by Philip Niedertscheider on 05.07.20.
+//  Copyright © Philip Niedertscheider. All rights reserved.
 //
 
 enum PhraseError: Error {
@@ -16,4 +16,6 @@ enum PhraseError: Error {
     case unknownVariable(name: String)
     case invalidVariableType(Any)
     case invalid(token: String)
+
+    case unknownOperator(name: String)
 }
