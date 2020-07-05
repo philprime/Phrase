@@ -13,10 +13,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build
-      run: swift build -v
+      run: swift build
     - name: Run tests
-      run: swift test -v
-
+      run: swift test --enable-code-coverage
+    - name: Upload coverage
+      run: bash <(curl -s https://codecov.io/bash)
   run-linux:
     runs-on: ubuntu-latest
 
