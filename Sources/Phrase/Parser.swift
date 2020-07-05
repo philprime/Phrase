@@ -18,6 +18,29 @@ class Parser {
         stack.first!
     }
 
+    internal func parseInfixOperator(from token: Substring) throws {
+        guard let nextToken = lexer.next() else {
+            throw PhraseError.infixMissingSecondaryParameter
+        }
+        try parse(token: nextToken)
+        var rhs = stack.popLast()!
+        let lhs = stack.popLast()!
+
+        // if rhs is only a variable but not a boolean value, continue
+        if token == "&&" || token == "||" {
+            if try rhs.isNotLogical(context: [:]), let nextToken = lexer.next() {
+                stack.append(rhs)
+                try parse(token: nextToken)
+                rhs = stack.popLast()!
+            }
+        }
+
+        guard let op = InfixOperator(rawValue: String(token)) else {
+            throw PhraseError.unknownOperator(name: String(token))
+        }
+        stack.append(.infix(op: op, lhs: lhs, rhs: rhs))
+    }
+
     internal func parse(token: Substring) throws {
         switch token {
         case "true":
@@ -25,85 +48,49 @@ class Parser {
         case "false":
             stack.append(.constant(.false))
         case "&&", "||", "==", "!=", ">=", ">", "<", "<=":
-            guard let nextToken = lexer.next() else {
-                throw PhraseError.infixMissingSecondaryParameter
-            }
-            try parse(token: nextToken)
-            var rhs = stack.popLast()!
-            let lhs = stack.popLast()!
-
-            // if rhs is only a variable but not a boolean value, continue
-            if token == "&&" || token == "||" {
-                if try rhs.isNotLogical(context: [:]), let nextToken = lexer.next() {
-                    stack.append(rhs)
-                    try parse(token: nextToken)
-                    rhs = stack.popLast()!
-                }
-            }
-
-            guard let op = InfixOperator(rawValue: String(token)) else {
-                throw PhraseError.unknownOperator(name: String(token))
-            }
-            stack.append(.infix(op: op, lhs: lhs, rhs: rhs))
+            try parseInfixOperator(from: token)
         default:
-            // Scan for prefix token
-            if token.hasPrefix("!") {
-                let subtoken = token.dropFirst()
-                try parse(token: subtoken)
-                stack.append(.prefix(op: .not, node: stack.popLast()!))
-            } else if let number = parseNumber(token: token) {
-                stack.append(.constant(number))
-            } else if let string = try parseString(token: token, lexer: lexer) {
-                stack.append(.constant(string))
-            } else if token.hasPrefix("[") {
-                // if token ends with quote, it does not contain any spaces and where are done
-                var subtoken = token.dropFirst()
-                if token.hasSuffix("]") {
-                    subtoken = subtoken.dropLast()
-                } else {
-                    // add tokens until we either run out of tokens, or the closing quote is found
-                    repeat {
-                        guard let nextToken = lexer.next() else {
-                            throw PhraseError.missingClosingQuote
-                        }
-                        subtoken += nextToken
-                    } while !subtoken.hasSuffix("]")
-                }
-                stack.append(.constant(try parseArray(content: subtoken)))
-            } else {
-                // Either it is unparsed or it is a variable name
-                // Check if name has non-alphanumeric with lowercase, if so it is not a variable name
-                if let variable = try Variable.parse(token: token) {
-                    stack.append(.variable(variable))
-                } else {
-                    // functions
-                    let keypath = token.split(separator: ".")
-                    var keypathStack: [ASTNode] = []
-                    // Only count is implemented so far, so we hardcode it
-                    for (idx, path) in keypath.enumerated() {
-                        if idx == keypath.count - 1, path == "count", keypathStack.count > 0 {
-                            guard let prevNode = keypathStack.popLast() else {
-                                fatalError()
-                            }
-                            keypathStack.append(.postfix(op: .count, node: prevNode))
-                        } else if let variable = try Variable.parse(token: path) {
-                            if keypathStack.count != 0 {
-                                fatalError("Did not implement nested variables yet")
-                            } else {
-                                keypathStack.append(.variable(variable))
-                            }
-                        } else {
-                            fatalError()
-                        }
-                    }
-                    assert(keypathStack.count == 1)
-                    stack.append(keypathStack[0])
-                }
-            }
+            try parseUnknown(token: token)
         }
     }
 
-    private func parseArray(content: Substring) throws -> Constant {
+    func parseUnknown(token: Substring) throws {
+        // Scan for prefix token
+        if token.hasPrefix("!") {
+            try parse(token: token.dropFirst())
+            stack.append(.prefix(op: .not, node: stack.popLast()!))
+        } else if let number = parseNumber(token: token) {
+            stack.append(.constant(number))
+        } else if let string = try parseString(token: token, lexer: lexer) {
+            stack.append(.constant(string))
+        } else if token.hasPrefix("[") {
+            try parseArrayToken(token: token)
+        } else if let variable = try Variable.parse(token: token) {
+            // Check if name has non-alphanumeric with lowercase, if so it is not a variable name
+            stack.append(.variable(variable))
+        } else {
+            try parseKeyPath(token: token)
+        }
+    }
+
+    private func parseArrayToken(token: Substring) throws {
+        // if token ends with quote, it does not contain any spaces and where are done
+        var subtoken = token.dropFirst()
+        if token.hasSuffix("]") {
+            subtoken = subtoken.dropLast()
+        } else {
+            // add tokens until we either run out of tokens, or the closing quote is found
+            repeat {
+                guard let nextToken = lexer.next() else {
+                    throw PhraseError.missingClosingQuote
+                }
+                subtoken += nextToken
+            } while !subtoken.hasSuffix("]")
+        }
+        stack.append(.constant(try parseArrayContent(content: subtoken)))
+    }
+
+    private func parseArrayContent(content: Substring) throws -> Constant {
         guard !content.isEmpty else {
             return .array([])
         }
@@ -121,6 +108,31 @@ class Parser {
         }
 
         return .array(values)
+    }
+
+    private func parseKeyPath(token: Substring) throws {
+        // functions
+        let keypath = token.split(separator: ".")
+        var keypathStack: [ASTNode] = []
+        // Only count is implemented so far, so we hardcode it
+        for (idx, path) in keypath.enumerated() {
+            if idx == keypath.count - 1, path == "count", keypathStack.count > 0 {
+                guard let prevNode = keypathStack.popLast() else {
+                    fatalError()
+                }
+                keypathStack.append(.postfix(op: .count, node: prevNode))
+            } else if let variable = try Variable.parse(token: path) {
+                if keypathStack.count != 0 {
+                    fatalError("Did not implement nested variables yet")
+                } else {
+                    keypathStack.append(.variable(variable))
+                }
+            } else {
+                fatalError()
+            }
+        }
+        assert(keypathStack.count == 1)
+        stack.append(keypathStack[0])
     }
 
     private func parseNumber(token: Substring) -> Constant? {
