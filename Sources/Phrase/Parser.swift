@@ -128,7 +128,7 @@ class Parser {
                     keypathStack.append(.variable(variable))
                 }
             } else {
-                fatalError()
+                throw PhraseError.invalid(token: String(token))
             }
         }
         assert(keypathStack.count == 1)

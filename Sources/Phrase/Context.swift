@@ -6,4 +6,5 @@
 //  Copyright © Philip Niedertscheider. All rights reserved.
 //
 
-public typealias Context = [String: Any]
+public typealias ContextValue = AnyHashable
+public typealias Context = [String: ContextValue]

@@ -6,7 +6,7 @@
 //  Copyright © Philip Niedertscheider. All rights reserved.
 //
 
-internal indirect enum ASTNode {
+internal indirect enum ASTNode: Equatable {
     case prefix(op: PrefixOperator, node: ASTNode)
     case infix(op: InfixOperator, lhs: ASTNode, rhs: ASTNode)
     case postfix(op: PostfixOperator, node: ASTNode)
@@ -38,5 +38,26 @@ internal indirect enum ASTNode {
         default:
             return true
         }
+    }
+
+    // MARK: - Equatable
+
+    public static func == (lhs: ASTNode, rhs: ASTNode) -> Bool {
+        if case ASTNode.prefix(let lhsOp, let lhsNode) = lhs, case ASTNode.prefix(let rhsOp, let rhsNode) = rhs {
+            return lhsOp == rhsOp && lhsNode == rhsNode
+        } else if case ASTNode.infix(let lhsOp, let lhsLNode, let lhsRNode) = lhs, case ASTNode.infix(let rhsOp, let rhsLNode, let rhsRNode) = rhs {
+            return lhsOp == rhsOp && lhsLNode == rhsLNode && lhsRNode == rhsRNode
+        } else if case ASTNode.postfix(let lhsOp, let lhsNode) = lhs, case ASTNode.postfix(let rhsOp, let rhsNode) = rhs {
+            return lhsOp == rhsOp && lhsNode == rhsNode
+        } else if case ASTNode.constant(let lhsValue) = lhs, case ASTNode.constant(let rhsValue) = rhs {
+            do {
+                return try lhsValue == rhsValue
+            } catch {
+                return false
+            }
+        } else if case ASTNode.variable(let lhsVar) = lhs, case ASTNode.variable(let rhsVar) = rhs {
+            return lhsVar == rhsVar
+        }
+        return false
     }
 }

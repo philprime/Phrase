@@ -6,7 +6,8 @@
 //  Copyright © Philip Niedertscheider. All rights reserved.
 //
 
-enum PhraseError: Error {
+public enum PhraseError: Error {
+    
     case expressionIsEmpty
     case infixMissingSecondaryParameter
     case typesMismatch
