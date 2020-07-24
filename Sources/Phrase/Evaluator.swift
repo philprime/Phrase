@@ -6,15 +6,37 @@
 //  Copyright © Philip Niedertscheider. All rights reserved.
 //
 
+/// Evaluates an Abstract Syntax Tree (AST) based on the given data context.
 class Evaluator {
-    private let tree: ASTNode
-    private let context: Context
 
+    /// Tree of parsed abstract syntax nodes
+    private var tree: ASTNode!
+
+    /// Evaluation context, holding values for variable names
+    ///
+    /// **Example:**
+    ///
+    ///     evaluator.context = [
+    ///         "list": [1,2,3,4,5]
+    ///     ]
+    public var context: Context = [:]
+
+
+    /// Creates a new instance of Evaluator for evaluating the given `tree` using the values in the given `context`
+    ///
+    /// - Parameters:
+    ///   - tree: Abstract Syntax Tree
+    ///   - context: Context holding named values
     init(tree: ASTNode, context: Context) {
         self.tree = tree
         self.context = context
     }
 
+    /// Evaluates the AST by inverse recursively evaluating the root node of the tree
+    ///
+    /// - Throws:
+    ///    - `PhraseError`, if something went wrong
+    /// - Returns: `true` if the evaluation result equals `Constant.true`, otherwise `false`
     internal func evaluate() throws -> Bool {
         try evaluate(node: tree) == .true
     }
@@ -44,7 +66,7 @@ class Evaluator {
     private func evaluate(infixOp: InfixOperator, lhs: ASTNode, rhs: ASTNode) throws -> Constant {
         let evaluatedLhs: () throws -> Constant = { try self.evaluate(node: lhs) }
         let evaluatedRhs: () throws -> Constant = { try self.evaluate(node: rhs) }
-        // Use lazy evaluation, so the operator can decide if each evaluations is actually necessary
+        // Use lazy evaluation, so the operator can decide if each evaluations are actually necessary
         return try infixOp.evaluate(lhs: evaluatedLhs, rhs: evaluatedRhs) ? .true : .false
     }
 

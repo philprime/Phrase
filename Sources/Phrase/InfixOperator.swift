@@ -7,6 +7,7 @@
 //
 
 internal enum InfixOperator: String {
+
     // MARK: Logic operators
 
     /// Binary AND

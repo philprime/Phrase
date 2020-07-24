@@ -65,7 +65,7 @@ class Parser {
             stack.append(.constant(string))
         } else if token.hasPrefix("[") {
             try parseArrayToken(token: token)
-        } else if let variable = try Variable.parse(token: token) {
+        } else if let variable = Variable.parse(token: token) {
             // Check if name has non-alphanumeric with lowercase, if so it is not a variable name
             stack.append(.variable(variable))
         } else {
@@ -103,7 +103,7 @@ class Parser {
             } else if let number = parseNumber(token: token) {
                 values.append(number)
             } else {
-                throw PhraseError.unknownVariable(name: String(token))
+                throw PhraseError.invalid(token: String(token))
             }
         }
 

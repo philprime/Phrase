@@ -6,10 +6,19 @@
 //  Copyright © Philip Niedertscheider. All rights reserved.
 //
 
+/// Variables are currently only raw strings
 typealias Variable = String
 
 extension Variable {
-    static func parse(token: Substring) throws -> Variable? {
+
+    /// If the given token is a valid variable name, therefore not containing illegal characters, a new variable is returned, otherwise `nil`.
+    ///
+    /// Variable names can contain case-insensitive alphanumeric characters and underscores.
+    /// Any other character is considered illegal
+    ///
+    /// - Parameter token: Base for variable check.
+    /// - Returns: `Variable` if the given `token` only contains valid characters, otherwise `nil`.
+    static func parse(token: Substring) -> Variable? {
         let alphabet = "abcdefghijklmnopqrstuvwxyz"
         let decimals = "0123456789"
         let symbols = "_"

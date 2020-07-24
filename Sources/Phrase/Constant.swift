@@ -6,19 +6,39 @@
 //  Copyright © Philip Niedertscheider. All rights reserved.
 //
 
+/// Represents a constant value in the expression
 internal enum Constant {
-    // Boolean constants
+
+    // MARK: - Boolean constants
+
+    /// Constant represents a logical fruth value
     case `true`
+
+    /// Constant represents a logical false value
     case `false`
 
-    // Nullability constants
+    // MARK: - Nullability constants
+
+    /// Constant represents non-existence
     case `nil`
 
-    // Arbitary typed constants
+    // MARK: - Arbitary typed constants
+
+    /// Constant holds a raw string number
     case number(String)
+
+    /// Constant holds a string value
     case string(String)
+
+    /// Constant holds an array of constants
     case array([Constant])
 
+    /// Returns a `Constant` based on the given variable type, or throws if the type is invalid.
+    ///
+    /// - Parameter variable: Value which should be casted into a `Constant`
+    /// - Throws:
+    ///     - `PhraseError.invalidVariableType`, if the variable has a unsupported type
+    /// - Returns: Constant representing the given variable
     internal static func cast(variable: Any) throws -> Constant {
         if let string = variable as? String {
             return .string(string)

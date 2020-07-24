@@ -6,6 +6,14 @@
 //  Copyright © Philip Niedertscheider. All rights reserved.
 //
 
+/// Checks the two given constants for equality.
+///
+/// - Parameters:
+///   - lhs: Base constant to equate
+///   - rhs: Other constant to equate
+/// - Throws:
+///    - `PhraseError.typesMismatch`, if the two constants are of different type, and can not be equated.
+/// - Returns: `true`, if the two constants are the same, otherwise `false`
 func == (lhs: Constant, rhs: Constant) throws -> Bool {
     switch lhs {
     case .true:
@@ -23,10 +31,18 @@ func == (lhs: Constant, rhs: Constant) throws -> Bool {
     }
 }
 
+/// Checks the two given constants for inequality.
+///
+/// - Parameters:
+///   - lhs: Base constant to equate
+///   - rhs: Other constant to equate
+/// - Throws: If equating the two constants fails, see `==(lhs:rhs:)` for details
+/// - Returns: `true`, if the two constants differ, otherwise `false`
 func != (lhs: Constant, rhs: Constant) throws -> Bool {
     !(try lhs == rhs)
 }
 
+/// Checks if `rhs` is truth constant
 private func equalsTruthyBoolean(rhs: Constant) throws -> Bool {
     switch rhs {
     case .true:
@@ -39,6 +55,7 @@ private func equalsTruthyBoolean(rhs: Constant) throws -> Bool {
     }
 }
 
+/// Checks if `rhs` is false constant
 private func equalsFalseyBoolean(rhs: Constant) throws -> Bool {
     switch rhs {
     case .false:
@@ -51,6 +68,7 @@ private func equalsFalseyBoolean(rhs: Constant) throws -> Bool {
     }
 }
 
+/// Checks if `rhs` is a nil constant
 private func isNil(rhs: Constant) -> Bool {
     guard case Constant.nil = rhs else {
         return false
@@ -58,6 +76,7 @@ private func isNil(rhs: Constant) -> Bool {
     return true
 }
 
+/// Checks if `rhs` is a number and if the value equals
 private func equalsNumber(rhs: Constant, number: String) throws -> Bool {
     switch rhs {
     case let .number(other):
@@ -69,6 +88,7 @@ private func equalsNumber(rhs: Constant, number: String) throws -> Bool {
     }
 }
 
+/// Checks if `rhs` is an string and if the value equals
 private func equalsString(rhs: Constant, string: String) throws -> Bool {
     switch rhs {
     case let .string(other):
@@ -80,6 +100,7 @@ private func equalsString(rhs: Constant, string: String) throws -> Bool {
     }
 }
 
+/// Checks if `rhs` is an array and if the elements equals
 private func equalsArray(rhs: Constant, values: [Constant]) throws -> Bool {
     switch rhs {
     case let .array(other):

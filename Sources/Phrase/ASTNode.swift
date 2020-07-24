@@ -42,6 +42,12 @@ internal indirect enum ASTNode: Equatable {
 
     // MARK: - Equatable
 
+    /// Recrusively comparse both nodes first by its type and then by  the value it might hold.
+    ///
+    /// - Parameters:
+    ///   - lhs: Base node to test for equality
+    ///   - rhs: Other node to to test for equality
+    /// - Returns: if equals `true`, otherwise `false`
     public static func == (lhs: ASTNode, rhs: ASTNode) -> Bool {
         if case ASTNode.prefix(let lhsOp, let lhsNode) = lhs, case ASTNode.prefix(let rhsOp, let rhsNode) = rhs {
             return lhsOp == rhsOp && lhsNode == rhsNode
@@ -50,11 +56,7 @@ internal indirect enum ASTNode: Equatable {
         } else if case ASTNode.postfix(let lhsOp, let lhsNode) = lhs, case ASTNode.postfix(let rhsOp, let rhsNode) = rhs {
             return lhsOp == rhsOp && lhsNode == rhsNode
         } else if case ASTNode.constant(let lhsValue) = lhs, case ASTNode.constant(let rhsValue) = rhs {
-            do {
-                return try lhsValue == rhsValue
-            } catch {
-                return false
-            }
+            return (try? lhsValue == rhsValue) ?? false
         } else if case ASTNode.variable(let lhsVar) = lhs, case ASTNode.variable(let rhsVar) = rhs {
             return lhsVar == rhsVar
         }
