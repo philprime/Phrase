@@ -1,6 +1,6 @@
 # Phrase
 
-![Build & Test](https://github.com/philprime/Phrase/workflows/Build%20&%20Test/badge.svg)
+![Build, Lint & Test](https://github.com/philprime/Phrase/workflows/Build,%20Lint%20&%20Test/badge.svg)
 [![Documentation Coverage](https://raw.githubusercontent.com/philprime/Phrase/gh-pages/badge.svg)](https://philprime.github.io/Phrase/)
 
 Boolean expression evaluation purely written in Swift for macOS & Linux without any dependencies.
