@@ -18,3 +18,40 @@ if try expression.evaluate() {
    ...
 }
 ```
+
+### Operators
+
+#### Prefix-Operators
+
+Operators which require a succeeding node
+
+- `!`
+
+#### Infix-Operators
+
+Operators which require a preceding and a succeeding node
+
+##### Logical:
+
+- `&&`
+- `||`
+
+##### Equaltiy:
+
+- `==`
+- `!=`
+
+##### Comparing:
+
+- `>`
+- `>=`
+- `<`
+- `<=`
+
+#### Postfix-Operators
+
+Operators which require a preceeding node
+
+- `count`
+
+> returns the element count of the preceeding array node
