@@ -21,7 +21,6 @@ class Evaluator {
     ///     ]
     public var context: Context = [:]
 
-
     /// Creates a new instance of Evaluator for evaluating the given `tree` using the values in the given `context`
     ///
     /// - Parameters:

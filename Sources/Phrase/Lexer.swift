@@ -17,7 +17,8 @@ class Lexer: IteratorProtocol {
 
     /// Creates a new Lexer by tokenizing the given expression string.
     ///
-    /// If the given expression is empty, or contains only empty characters (such as spaces), `nil` is returned, indicating no further parsing is necessary
+    /// If the given expression is empty, or contains only empty characters (such as spaces),
+    /// `nil` is returned, indicating no further parsing is necessary
     ///
     /// - Parameter expression: Expression used to tokenize and lex
     convenience init?(raw expression: String) {

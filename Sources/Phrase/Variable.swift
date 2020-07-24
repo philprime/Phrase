@@ -11,7 +11,7 @@ typealias Variable = String
 
 extension Variable {
 
-    /// If the given token is a valid variable name, therefore not containing illegal characters, a new variable is returned, otherwise `nil`.
+    /// If the given token is a valid variable name (not containing illegal characters), a new variable is returned.
     ///
     /// Variable names can contain case-insensitive alphanumeric characters and underscores.
     /// Any other character is considered illegal

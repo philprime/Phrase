@@ -6,7 +6,8 @@
 //  Copyright © Philip Niedertscheider. All rights reserved.
 //
 
-/// Checks if the two given constants are either `Constant.true` or `Constant.false`, and if the logical `and` condition is fulfilled.
+/// Checks if the two given constants are either `Constant.true` or `Constant.false`,
+/// and if the logical `and` condition is fulfilled.
 ///
 /// The following truth table applys:
 ///
@@ -39,7 +40,8 @@ func && (lhs: Constant, rhs: Constant) throws -> Bool {
     throw PhraseError.typesNotLogical
 }
 
-/// Checks if the two given constants are either `Constant.true` or `Constant.false`, and if the logical `or` condition is fulfilled.
+/// Checks if the two given constants are either `Constant.true` or `Constant.false`,
+/// and if the logical `or` condition is fulfilled.
 ///
 /// The following truth table applys:
 ///
