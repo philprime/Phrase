@@ -6,6 +6,7 @@
 //  Copyright © Philip Niedertscheider. All rights reserved.
 //
 
+/// Errors which can be thrown during framework usage
 public enum PhraseError: Error {
 
     /// The given expression is empty
