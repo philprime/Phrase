@@ -15,7 +15,20 @@ jobs:
     - name: Build
       run: swift build -v
     - name: Run tests
-      run: swift test -v
+      run: swift test --enable-code-coverage
+    - name: Generate Code Coverage
+      run: |
+        xcrun llvm-cov export \
+          .build/debug/PhrasePackageTests.xctest/Contents/MacOS/PhrasePackageTests \
+          -instr-profile .build/debug/codecov/default.profdata \
+          --format="lcov" \
+          --ignore-filename-regex "\\.build" \
+          --ignore-filename-regex "Tests" > info.lcov
+    - name: Upload Code Coverage
+      run: |  
+        bash <(curl -s https://codecov.io/bash) \
+          -J 'Phrase' \
+          -G info.lcov
 
   run-linux:
     runs-on: ubuntu-latest
