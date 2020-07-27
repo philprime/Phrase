@@ -2,6 +2,9 @@
 
 [![CI](https://github.com/philprime/Phrase/workflows/Build,%20Lint%20&%20Test/badge.svg)](https://github.com/philprime/Phrase/actions)
 [![Documentation](https://raw.githubusercontent.com/philprime/Phrase/gh-pages/badge.svg)](https://philprime.github.io/Phrase/)
+[![codecov](https://codecov.io/gh/philprime/Phrase/branch/main/graph/badge.svg)](https://codecov.io/gh/philprime/Phrase)
+
+
 
 Boolean expression evaluation purely written in Swift for 
 macOS & Linux without any dependencies.
