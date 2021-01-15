@@ -121,7 +121,7 @@ class Parser {
                     fatalError()
                 }
                 keypathStack.append(.postfix(op: .count, node: prevNode))
-            } else if let variable = try Variable.parse(token: path) {
+            } else if let variable = Variable.parse(token: path) {
                 if keypathStack.count != 0 {
                     fatalError("Did not implement nested variables yet")
                 } else {
